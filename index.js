@@ -6,48 +6,8 @@ const express   = require('express');
 const Webtask   = require('webtask-tools');
 const app       = express();
 const Request   = require('request');
+const crypto    = require('crypto');
 const memoizer  = require('lru-memoizer');
-
-/*
- * Get the application insights client.
- */
-const getClient = (key) => {
-  const appInsights = require('applicationinsights');
-  const client = appInsights.getClient(key);
-
-  // Override the original getEnvelope method to allow setting a custom time.
-  const originalGetEnvelope = client.getEnvelope;
-  client.getEnvelope = (data, tagOverrides) => {
-    let envelope = originalGetEnvelope.apply(client, [data, tagOverrides]);
-    envelope.time = data.baseData.properties.date;
-    envelope.os = data.baseData.properties.os;
-    envelope.osVer = data.baseData.properties.os_version;
-    envelope.tags['ai.device.id'] = data.baseData.properties.device;
-    envelope.tags['ai.device.machineName'] = data.baseData.properties.client_name;
-    envelope.tags['ai.device.type'] = 'mobile:' + data.baseData.properties.isMobile;
-    envelope.tags['ai.device.os'] = data.baseData.properties.os;
-    envelope.tags['ai.device.osVersion'] = data.baseData.properties.os_version;
-    envelope.tags['ai.device.osArchitecture'] = '';
-    envelope.tags['ai.device.osPlatform'] = data.baseData.properties.os;
-
-    if (data.baseData.properties.ip) {
-      envelope.tags['ai.location.ip'] = data.baseData.properties.ip;
-    }
-
-    if (data.baseData.properties.user_id || data.baseData.properties.user_name) {
-      envelope.tags['ai.user.id'] = data.baseData.properties.user_id || data.baseData.properties.user_name;
-      envelope.tags['ai.user.accountId'] = data.baseData.properties.user_name || data.baseData.properties.user_id;
-      envelope.tags['ai.user.authUserId'] = data.baseData.properties.user_name || data.baseData.properties.user_id;
-    }
-
-    if (data.baseData.properties.user_agent) {
-      envelope.tags['ai.user.agent'] = data.baseData.properties.user_agent;
-    }
-    return envelope;
-  };
-
-  return client;
-};
 
 function lastLogCheckpoint (req, res) {
   let ctx = req.webtaskContext;
@@ -56,8 +16,12 @@ function lastLogCheckpoint (req, res) {
     return res.status(400).send({ message: 'Auth0 API v1 credentials or domain missing.' });
   }
 
-  if (!ctx.data.APPINSIGHTS_INSTRUMENTATIONKEY) {
-    return res.status(400).send({ message: 'Application Insights instrumentation key is missing.' });
+  if (!ctx.data.LOG_ANALYTICS_WORKSPACE_ID) {
+    return res.status(400).send({ message: 'Log Analytics Workspace ID key is missing.' });
+  }
+
+  if (!ctx.data.LOG_ANALYTICS_SHARED_KEY) {
+    return res.status(400).send({ message: 'Log Analytics Shared Key is missing.' });
   }
 
   req.webtaskContext.storage.get((err, data) => {
@@ -66,11 +30,6 @@ function lastLogCheckpoint (req, res) {
      * If this is a scheduled task, we'll get the last log checkpoint from the previous run and continue from there.
      */
     console.log('Starting from:', checkpointId);
-
-    const client = getClient(ctx.data.APPINSIGHTS_INSTRUMENTATIONKEY);
-    client.commonProperties = {
-      auth0_domain: ctx.data.AUTH0_DOMAIN
-    };
 
     /*
      * Test authenticating with the Auth0 API.
@@ -96,7 +55,7 @@ function lastLogCheckpoint (req, res) {
 
 	        if (result && result.length > 0) {
 	          result.forEach(function (log) {
-	            // Application Insights does not allow you to send very old logs, so we'll only send the logs of the last 48 hours max.
+	            // Azure Log Analytics does not allow you to send very old logs, so we'll only send the logs of the last 48 hours max.
 	            if (log.date && moment().diff(moment(log.date), 'hours') < 48) {
 	              logs.push(log);
 	            }
@@ -115,10 +74,10 @@ function lastLogCheckpoint (req, res) {
     };
 
     /*
-     * Export the logs to Application Insights.
+     * Export the logs to Azure Log Analytics.
      */
     const exportLogs = (logs, callback) => {
-      console.log('Exporting logs to Application Insights: ' + logs.length);
+      console.log('Exporting logs to Azure Log Analytics: ' + logs.length);
 
       logs.forEach(function(record) {
         var level = 0;
@@ -433,6 +392,33 @@ const logTypes = {
 };
 
 function getLogsFromAuth0 (domain, token, take, from, cb) {
+  var url = `https://${domain}/api/v2/logs`;
+
+  Request({
+    method: 'GET',
+    url: url,
+    json: true,
+    qs: {
+      take: take,
+      from: from,
+      sort: 'date:1',
+      per_page: take
+    },
+    headers: {
+      Authorization: `Bearer ${token}`,
+      Accept: 'application/json'
+    }
+  }, (err, res, body) => {
+    if (err) {
+      console.log('Error getting logs', err);
+      cb(null, err);
+    } else {
+      cb(body);
+    }
+  });
+}
+
+function postLogsFromToLogAnalytics (domain, token, take, from, cb) {
   var url = `https://${domain}/api/v2/logs`;
 
   Request({

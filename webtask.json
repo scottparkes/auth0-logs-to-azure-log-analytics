@@ -1,9 +1,9 @@
 {
-  "title": "Logs to Application Insights",
-  "name": "logs-to-application-insights",
-  "version": "1.5.0",
+  "title": "Logs to Azure Log Analytics",
+  "name": "logs-to-azure-log-analytics",
+  "version": "1.0.0",
   "author": "dpiessens",
-  "description": "Logs and export them to Application Insights",
+  "description": "Logs and export them to Azure Log Analytics",
   "type": "cron",
   "keywords": [
     "dpiessens",
@@ -15,11 +15,15 @@
   },
   "secrets": {
     "BATCH_SIZE": {
-      "description": "The ammount of logs to be read on each execution. Maximun is 100.",
+      "description": "The ammount of logs to be read on each execution. Maximum is 100.",
       "default": 100
     },
-    "APPINSIGHTS_INSTRUMENTATIONKEY": {
-      "description": "Application Insights instrumentationKey",
+    "LOG_ANALYTICS_WORKSPACE_ID": {
+      "description": "Azure Log Analytics Workspace ID",
+      "required": true
+    },
+    "LOG_ANALYTICS_SHARED_KEY": {
+      "description": "Azure Log Analytics Workspace Shared Key",
       "required": true
     }
   }

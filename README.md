@@ -29,13 +29,14 @@ wt cron schedule \
     --secret AUTH0_DOMAIN="YOUR_AUTH0_DOMAIN" \
     --secret AUTH0_GLOBAL_CLIENT_ID="YOUR_AUTH0_GLOBAL_CLIENT_ID" \
     --secret AUTH0_GLOBAL_CLIENT_SECRET="YOUR_AUTH0_GLOBAL_CLIENT_SECRET" \
-    --secret LOG_ANALYTICS_INSTRUMENTATIONKEY="YOUR_LOG_ANALYTICS_INSTRUMENTATION_KEY" \
+    --secret LOG_ANALYTICS_WORKSPACE_ID="YOUR_LOG_ANALYTICS_WORKSPACE_ID" \
+    --secret LOG_ANALYTICS_SHARED_KEY="YOUR_LOG_ANALYTICS_SHARED_KEY" \
     --json \
     "*/5 * * * *" \
     ./build/bundle.js
 ```
 
-> You can get your Global Client Id/Secret here: https://auth0.com/docs/api/v1
+> You can get your Global Client Id/Secret here: https://auth0.com/docs/api/v2
 
 ## Usage
 
