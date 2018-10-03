@@ -1,7 +1,7 @@
 {
-  "name": "logs-to-application-insights",
+  "name": "logs-to-azure-log-analytics",
   "version": "1.5.0",
-  "description": "This extension will take all of your Auth0 logs and export them to Application Insights",
+  "description": "This extension will take all of your Auth0 logs and export them to Azure Log Analytics",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -9,9 +9,9 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/dpiessens/auth0-logs-to-application-insights.git"
+    "url": "git+https://github.com/dpiessens/auth0-logs-to-azure-log-analytics.git"
   },
-  "author": "dan.piessens@tricast.com",
+  "author": "dan.piessens@tcreveal.com",
   "license": "MIT",
   "dependencies": {
     "express": "4.14.0",

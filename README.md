@@ -1,12 +1,12 @@
-# Auth0 - Logs to Application Insights Webtask
+# Auth0 - Logs to Azure Log Analytics Webtask
 
 [![Auth0 Extensions](http://cdn.auth0.com/extensions/assets/badge.svg)](https://sandbox.it.auth0.com/api/run/auth0-extensions/extensions-badge?webtask_no_cache=1)
 
-This extension will take all of your Auth0 logs and export them to Application Insights
+This extension will take all of your Auth0 logs and export them to Azure Log Analytics
 
-## Configure Application Insights
+## Configure Azure Log Analytics
 
-First you'll need an Application Insights account which you can create for free in your [Azure Subscription](https://portal.azure.com/#create/Microsoft.AppInsights).
+First you'll need an Azure Log Analytics account which you can create for free in your [Azure Subscription](https://portal.azure.com/#create/Microsoft.LogAnalyticsOMS).
 
 ## Configure Webtask
 
@@ -25,11 +25,11 @@ To run it on a schedule (run every 5 minutes for example):
 
 ```
 wt cron schedule \
-    --name auth0-logs-to-application-insights \
+    --name auth0-logs-to-log-analytics \
     --secret AUTH0_DOMAIN="YOUR_AUTH0_DOMAIN" \
     --secret AUTH0_GLOBAL_CLIENT_ID="YOUR_AUTH0_GLOBAL_CLIENT_ID" \
     --secret AUTH0_GLOBAL_CLIENT_SECRET="YOUR_AUTH0_GLOBAL_CLIENT_SECRET" \
-    --secret APPINSIGHTS_INSTRUMENTATIONKEY="YOUR_APPLICATION_INSIGHTS_INSTRUMENTATION_KEY" \
+    --secret LOG_ANALYTICS_INSTRUMENTATIONKEY="YOUR_LOG_ANALYTICS_INSTRUMENTATION_KEY" \
     --json \
     "*/5 * * * *" \
     ./build/bundle.js
