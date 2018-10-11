@@ -29,7 +29,7 @@ export function loadCredentials() {
       }
 
       axios.defaults.headers.common.Authorization = `Bearer ${apiToken}`;
-      sessionStorage.setItem('logs-to-azure-log-analyticsapiToken', apiToken);
+      sessionStorage.setItem('logs-to-azure-log-analytics:apiToken', apiToken);
 
       dispatch({
         type: constants.RECIEVED_TOKEN,

@@ -11,8 +11,7 @@
     "lint:js": "eslint --ignore-path .gitignore --ignore-pattern build --ignore-pattern webpack .",
     "serve:dev": "cross-env NODE_ENV=development gulp run --gulpfile ./build/gulpfile.js",
     "serve:prod": "cross-env NODE_ENV=production node index.js",
-    "tag": "git tag $npm_package_version && git push --tags",
-    "echo": "echo hello $npm_package_version"
+    "tag": "git tag $npm_package_version && git push --tags"
   },
   "repository": {
     "type": "git",
